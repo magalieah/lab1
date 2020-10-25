@@ -5,22 +5,29 @@ const http = require('http')
 const url = require('url')
 const qs = require('querystring')
 const handles = require('./handles')
-
+var ejs=require('ejs')
 path = require('path')
+metrics = require('./metrics')
 
 app = express()
-app.use(express.static(path.join('/', 'public')))
+app.use(express.static(path.join(__dirname, 'public')))
 
 
-app.set('views', '/' + "/views") //'views, current directory +'/views'
+app.set('views', __dirname + "/views") //'views, current directory +'/views
 app.set('view engine', 'ejs');
 
-/*
-const route = url.parse(req.url) //parse url to jS in route
-const path = route.pathname //avoir le chemin de l'url
-const params = qs.parse(route.query) //avoir les parametres du chemin en jS
-*/
 
+app.get('/metrics.json', (req, res) => {
+  metrics.get((err, data) => {
+    if(err) throw err
+    res.status(200).json(data)
+  })
+})
+
+app.get(
+  '/',
+  (req, res) => res.render('hellobis.ejs')
+)
 
 app.get(
   '/hello/:name',
@@ -28,4 +35,4 @@ app.get(
 )
 
 app.set('port', 8081)
-app.listen(app.get('port'),() => console.log('server listenin on port ${app.get('port')}'))
+app.listen(app.get('port'),() => console.log(`server listening on port ${app.get('port')}`))
